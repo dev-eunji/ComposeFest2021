@@ -28,6 +28,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun MyApp() {
+    /**
+     * rememberSaveable() will save each state surviving configuration changes and process dath.
+     */
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     if (shouldShowOnboarding) {
@@ -57,17 +60,6 @@ fun OnboardingScreen(onContinueClicked: () -> Unit) {
     }
 }
 
-/**
- * LazyColumns
- *
- * - To display a scrollable column we use a LazyColumns
- * - LayzyColumns renders only the visible items on screen, allowing performance gains when rendering a big list
- *
- * - LazyColumns and LazyRows are equivalent to RecyclerView in Android Views.
- * - However, LazyColumns does not recycle its children like RecyclerView.
- *      It emits new Composables as you scroll through it
- *   (그래도 Composable 의 emit 이 View의 instance화에 비해 상대적으로 저렴함 -> 성능 우수.)
- */
 @Composable
 private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
     LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -79,7 +71,7 @@ private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
 
 @Composable
 fun Greeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
+    val expanded = rememberSaveable { mutableStateOf(false) }
 
     val extraPadding = if(expanded.value) 48.dp else 0.dp
 
