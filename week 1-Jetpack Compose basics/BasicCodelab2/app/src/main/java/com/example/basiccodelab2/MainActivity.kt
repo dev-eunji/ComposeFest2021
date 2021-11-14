@@ -18,27 +18,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BasicCodelab2Theme { // depends on how your project is named.
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
-                }
+                MyApp()
             }
         }
     }
 }
 
-/**
- * composable function is a regular function annotated with @Composable
- * This function will produce a piece of UI
- */
+@Composable
+private fun MyApp() {
+    Surface(color = MaterialTheme.colors.background) {
+        Greeting("Android")
+    }
+}
+
 @Composable
 fun Greeting(name: String) {
-    /**
-     * Surface()
-     * - set a different background color with 
-     * - Material components chooses an appropriate color for text.
-     *   : 흰 배경에서는 검정색 글씨가 Surcface color를 보라색으로 지정했더니 글자색이 하얀색으로 자동 변경됨
-     */
     Surface(color = MaterialTheme.colors.primary) {
         Text(text = "Hello $name!", modifier = Modifier.padding(24.dp)) // Text() is a composable function
     }
