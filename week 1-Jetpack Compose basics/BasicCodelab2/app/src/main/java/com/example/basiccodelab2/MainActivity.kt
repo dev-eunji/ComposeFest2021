@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -12,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.basiccodelab2.ui.theme.BasicCodelab2Theme
-import kotlin.math.exp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,18 +26,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * [State hoisting]
- *
- * "we hoist the state"
- * - we simply move it to the common ancestor that needs to access it.
- *
- * In Composable functions, state that is read or modified by multiple functions should live in a common ancestor
- * - this process is called state hoisting.
- * (여러 함수에서 읽히거 수정되는 상태는 공통 상위 항목에 존재해야한다. )
- */
-
-
 @Composable
 private fun MyApp() {
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
@@ -48,10 +37,7 @@ private fun MyApp() {
     }
 }
 
-/**
- * By passing a function and not a state to OnboardingScreen,
- * we are making this composable more reusable and protecting the state from being mutated by other Composables.
- */
+
 @Composable
 fun OnboardingScreen(onContinueClicked: () -> Unit) {
     Surface {
@@ -71,14 +57,26 @@ fun OnboardingScreen(onContinueClicked: () -> Unit) {
     }
 }
 
+/**
+ * LazyColumns
+ *
+ * - To display a scrollable column we use a LazyColumns
+ * - LayzyColumns renders only the visible items on screen, allowing performance gains when rendering a big list
+ *
+ * - LazyColumns and LazyRows are equivalent to RecyclerView in Android Views.
+ * - However, LazyColumns does not recycle its children like RecyclerView.
+ *      It emits new Composables as you scroll through it
+ *   (그래도 Composable 의 emit 이 View의 instance화에 비해 상대적으로 저렴함 -> 성능 우수.)
+ */
 @Composable
-fun Greetings(names: List<String> = listOf("World", "Compose")) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)){
-        for (name in names) {
+private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
+    LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
+        items(items = names) { name ->
             Greeting(name = name)
         }
     }
 }
+
 @Composable
 fun Greeting(name: String) {
     val expanded = remember { mutableStateOf(false) }
