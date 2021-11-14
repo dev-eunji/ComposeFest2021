@@ -3,17 +3,11 @@ package com.example.basiccodelab2
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,30 +25,60 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * [State hoisting]
+ *
+ * "we hoist the state"
+ * - we simply move it to the common ancestor that needs to access it.
+ *
+ * In Composable functions, state that is read or modified by multiple functions should live in a common ancestor
+ * - this process is called state hoisting.
+ * (여러 함수에서 읽히거 수정되는 상태는 공통 상위 항목에 존재해야한다. )
+ */
+
+
 @Composable
-private fun MyApp(names: List<String> = listOf("World", "Compose")) {
+private fun MyApp() {
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+
+    if (shouldShowOnboarding) {
+        OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+    } else {
+        Greetings()
+    }
+}
+
+/**
+ * By passing a function and not a state to OnboardingScreen,
+ * we are making this composable more reusable and protecting the state from being mutated by other Composables.
+ */
+@Composable
+fun OnboardingScreen(onContinueClicked: () -> Unit) {
+    Surface {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Text("Welcome to the Basics Codelab!")
+            Button(
+                modifier = Modifier.padding(vertical = 24.dp),
+                onClick = onContinueClicked
+            ) {
+                Text("Continue")
+            }
+        }
+    }
+}
+
+@Composable
+fun Greetings(names: List<String> = listOf("World", "Compose")) {
     Column(modifier = Modifier.padding(vertical = 4.dp)){
         for (name in names) {
             Greeting(name = name)
         }
     }
 }
-
-/**
- * [State and Recomposition]
- *
- * 1. I need to state some value for the  somewhere that indicates whether each items is expanded or not
- *      - the state of the item.
- *
- * 2. If your data changes, Compose re-executes composable functions with the new data, creating an updated UI
- *      - this is called recomposition.
- *
- * 3. To preserve state across recomposition, remember the mutable state
- *      - using remember.
- *
- *    remember is used to guard against recomposition, so the state is not reset.
- */
-
 @Composable
 fun Greeting(name: String) {
     val expanded = remember { mutableStateOf(false) }
@@ -88,5 +112,15 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     BasicCodelab2Theme {
         MyApp()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    BasicCodelab2Theme {
+        OnboardingScreen {
+
+        }
     }
 }
