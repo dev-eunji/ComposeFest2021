@@ -12,10 +12,13 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.basiccodelab2.ui.theme.BasicCodelab2Theme
+import kotlin.math.exp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,12 +33,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun MyApp(names: List<String> = listOf("World", "Compose")) {
-
-    /**
-     * Composable functions can be used like any other function in Kotlin.
-     * This makes building UIs really powerful
-     * since you can add statements to influence how the UI will be displayed.
-     */
     Column(modifier = Modifier.padding(vertical = 4.dp)){
         for (name in names) {
             Greeting(name = name)
@@ -43,24 +40,43 @@ private fun MyApp(names: List<String> = listOf("World", "Compose")) {
     }
 }
 
+/**
+ * [State and Recomposition]
+ *
+ * 1. I need to state some value for the  somewhere that indicates whether each items is expanded or not
+ *      - the state of the item.
+ *
+ * 2. If your data changes, Compose re-executes composable functions with the new data, creating an updated UI
+ *      - this is called recomposition.
+ *
+ * 3. To preserve state across recomposition, remember the mutable state
+ *      - using remember.
+ *
+ *    remember is used to guard against recomposition, so the state is not reset.
+ */
+
 @Composable
 fun Greeting(name: String) {
+    val expanded = remember { mutableStateOf(false) }
+
+    val extraPadding = if(expanded.value) 48.dp else 0.dp
+
     Surface(
         color = MaterialTheme.colors.primary,
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
-        Row(modifier = Modifier.padding(24.dp)) {           // children in side of a Column will be placed horizontally
-            /**
-             * omposable 시작시 weight를 주어 (alignEnd modifier 없음, fillMaxWidth와 중복)
-             * - 사용 가능한 모든 공간을 채우고 flexible 하게 만든들고
-             * - weight가 없는 다른 inflexible elements 를 밀어냄
-             */
-            Column(modifier = Modifier.weight(1f)) { // vertically
+        Row(modifier = Modifier.padding(24.dp)) {
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(bottom = extraPadding)
+            ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
-            OutlinedButton(onClick = { /*TODO*/ }) {
-                Text("Show more")
+            OutlinedButton(
+                onClick = { expanded.value = !expanded.value }
+            ) {
+                Text(if (expanded.value) "Show less" else "Show more")
             }
         }
 
