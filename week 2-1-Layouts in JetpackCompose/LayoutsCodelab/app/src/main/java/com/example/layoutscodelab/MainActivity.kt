@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,32 +62,11 @@ fun LayoutsCodelab() {
 
 @Composable
 fun BodyContent(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(8.dp)) {
-        Text(text = "Hi there!")
-        Text(text = "Thanks for going through the Layouts codelab")
-    }
-}
-
-@Composable
-fun SimpleList() {
-    val scrollState = rememberScrollState()
-    Column(Modifier.verticalScroll(scrollState)) {
-        repeat(100) {
-            Text("Item #$it")
-        }
-    }
-}
-
-@Composable
-fun LazyList() {
-    // We save the scrolling position with this state that can also
-    // be used to programmatically scroll the list
-    val scrollState = rememberLazyListState()
-
-    LazyColumn(state = scrollState) {
-        items(100) {
-            Text("Item #$it")
-        }
+    MyOwnColumn(modifier = modifier.padding(8.dp)) {
+        Text("MyOwnColumn")
+        Text("places items")
+        Text("vertically.")
+        Text("We've done it by hand!")
     }
 }
 
@@ -138,6 +118,29 @@ fun ImageListItem(index: Int) {
 }
 
 @Composable
+fun MyOwnColumn(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Layout(
+        modifier = modifier,
+        content = content
+    ) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints) // Measure each child
+        }
+
+        var yPosition = 0
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeables.forEach { placeable ->
+                placeable.placeRelative(x = 0, y = yPosition)
+                yPosition += placeable.height
+            }
+        }
+    }
+}
+
+@Composable
 fun PhotographerCard(modifier: Modifier = Modifier) {
     Row(
         modifier
@@ -178,5 +181,13 @@ fun LayoutComdelabPreview() {
 fun ScrollingListPreview() {
     LayoutsCodelabTheme {
         ScrollingList()
+    }
+}
+
+@Preview
+@Composable
+fun TextWithNormalPaddingPreview() {
+    LayoutsCodelabTheme {
+        Text("Hi there!", Modifier.padding(top = 32.dp))
     }
 }
